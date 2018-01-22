@@ -1,0 +1,19 @@
+.HomePage .main {
+  min-height: 100vh;
+}
+
+.HomePage .content {
+  padding: 40px 50px;
+}
+
+.HomePage .header {
+  background-color: white;
+}
+
+.HomePage .menu {
+  line-height: 64px;
+}
+
+.HomePage .search-application-input {
+  width: 100%;
+}

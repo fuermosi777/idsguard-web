@@ -1,19 +1,18 @@
-import { observable, computed, action } from "mobx";
+import { observable, action } from "mobx";
 import axios from 'axios';
 import store from 'store';
-
-const API_URL = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:4000/api'
+import Config from '../config';
 
 class ApplicationStore {
   @observable applications = [];
 
-  @action getApplications() {
-    axios.get(`${API_URL}/applications`)
-      .then(response => {
-        console.log(response);
-      }).catch(err => {
-        console.log(err);
-      });
+  @action async searchApplications(query) {
+    try {
+      let response = await axios.get(`${Config.API_URL_BASE}/applications?applicationNumber=${query}`)
+      console.log(response);
+    } catch(err) {
+      throw err;
+    }
   }
 }
 

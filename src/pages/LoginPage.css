@@ -1,3 +1,8 @@
 .LoginPage .login-form {
   padding: 40px 0;
+  width: 300px;
+}
+
+.LoginPage .main {
+  min-height: 100vh;
 }

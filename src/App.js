@@ -24,6 +24,10 @@ function PrivateRoute ({component: Component, authed, ...rest}) {
 
 @observer
 class App extends Component {
+  componentWillMount() {
+    appStore.init();
+  }
+  
   render() {
     return (
       <Router>

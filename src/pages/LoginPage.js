@@ -9,7 +9,8 @@ import { Layout, Row, Col,
   Form,
   Input,
   Icon,
-  Button
+  Button,
+  Alert
 } from 'antd';
 import appStore from '../stores/appStore';
 import './LoginPage.css';
@@ -21,21 +22,27 @@ class LoginPage extends Component {
     super(props);
     this.state = {
       username: '',
-      password: ''
+      password: '',
+      errorMessage: ''
     };
   }
-  handleSubmit = e => {
+  handleSubmit = async e => {
     e.preventDefault();
-    appStore.login(this.state.username, this.state.password);
+    try {
+      await appStore.login(this.state.username, this.state.password);
+    } catch (err) {
+      this.setState({errorMessage: err.message});
+    }
   }
   onChangeUserName = e => {
-    this.setState({username: e.target.value});
+    this.setState({username: e.target.value, errorMessage: ''});
   }
   onChangePassword = e => {
-    this.setState({password: e.target.value});
+    this.setState({password: e.target.value, errorMessage: ''});
   }
   render() {
     const { from } = this.props.location.state || { from: { pathname: '/' } };
+    const { errorMessage } = this.state;
 
     if (appStore.isLoggedIn) {
       return (
@@ -45,10 +52,10 @@ class LoginPage extends Component {
 
     return (
       <div className="LoginPage">
-        <Layout>
+        <Layout className="main">
           <Layout.Content>
             <Row type="flex" justify="space-around">
-              <Col span={4}>
+              <Col>
                 <Form onSubmit={this.handleSubmit} className="login-form">
                   <Form.Item>
                     <h2>Login to IDS Guard</h2>
@@ -67,10 +74,18 @@ class LoginPage extends Component {
                       onChange={this.onChangePassword}
                     />
                   </Form.Item>
+                  {errorMessage ?
+                    <Form.Item>
+                      <Alert message={errorMessage} type="error" showIcon />
+                    </Form.Item>
+                  : null}
                   <Form.Item>
-                    <Button type="primary" htmlType="submit">
-                      Login
-                    </Button>
+                    <Row type='flex' justify="space-around">
+                      <Button type="primary" htmlType="submit">
+                        Login
+                      </Button>
+                      <Button type="primary" disabled>Sign up</Button>
+                    </Row>
                   </Form.Item>
                 </Form>
               </Col>
