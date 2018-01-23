@@ -1,0 +1,8 @@
+.LoginForm {
+  padding: 40px 0;
+  width: 300px;
+}
+
+.LoginForm__input-icon { 
+  color: 'rgba(0,0,0,.25)'
+}

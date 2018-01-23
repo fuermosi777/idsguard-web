@@ -3,7 +3,6 @@ import {
   Layout,
   Menu,
   Icon,
-  Input,
   Row,
   Col,
   Alert,
@@ -15,7 +14,7 @@ import {
 import './HomePage.css';
 import applicationSearchStore from '../stores/applicationSearchStore';
 import applicationStore from '../stores/applicationStore';
-import appStore from '../stores/appStore';
+import userStore from '../stores/userStore';
 import trackingStore from '../stores/trackingStore';
 import { observer } from 'mobx-react';
 import _ from 'lodash';
@@ -37,7 +36,7 @@ class HomePage extends Component {
   }
   handleSignoutClick = (e) => {
     if (e.key === 'signout') {
-      appStore.logout();
+      userStore.logout();
     }
   }
 
@@ -154,9 +153,11 @@ class HomePage extends Component {
                   />
                 </Col>
                 <Col span={12}>
-                  <Timeline className="appl-timeline">
-                    {this.renderTimeline(_.get(applicationStore, 'application.Transactions'))}
-                  </Timeline>
+                  {_.get(applicationStore, 'application') ?
+                    <Timeline className="appl-timeline">
+                      {this.renderTimeline(_.get(applicationStore, 'application.Transactions'))}
+                    </Timeline>
+                  : null}
                 </Col>
               </Row>
             </Layout.Content>

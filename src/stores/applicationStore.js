@@ -5,7 +5,7 @@ import _ from 'lodash';
 import Err from '../utils/error';
 
 class ApplicationStore {
-  @observable application = [];
+  @observable application = null;
 
   async getApplication(applicationId) {
     try {

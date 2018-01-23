@@ -6,7 +6,7 @@ import {
 } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
-import appStore from './stores/appStore';
+import userStore from './stores/userStore';
 import { observer } from 'mobx-react';
 
 import './App.css';
@@ -25,14 +25,14 @@ function PrivateRoute ({component: Component, authed, ...rest}) {
 @observer
 class App extends Component {
   componentWillMount() {
-    appStore.init();
+    userStore.init();
   }
   
   render() {
     return (
       <Router>
         <div className="App">
-          <PrivateRoute authed={appStore.isLoggedIn} path='/' exact component={HomePage} />
+          <PrivateRoute authed={userStore.isLoggedIn} path='/' exact component={HomePage} />
           <Route path='/login' component={LoginPage} />
         </div>
       </Router>
