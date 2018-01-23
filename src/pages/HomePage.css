@@ -17,3 +17,7 @@
 .HomePage .search-application-input {
   width: 100%;
 }
+
+.HomePage .appl-list {
+  background: white;
+}

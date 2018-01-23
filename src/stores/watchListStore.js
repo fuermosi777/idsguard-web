@@ -1,26 +1,27 @@
-import { observable } from "mobx";
+import { observable, action } from "mobx";
 import axios from 'axios';
 import Config from '../config';
 import _ from 'lodash';
 import Err from '../utils/error';
 
-class ApplicationStore {
-  @observable applications = [];
+class WatchListStore {
+  @observable watchLists = [];
 
-  async searchApplications(query) {
+  @action async getWatchLists(query) {
     try {
-      let response = await axios.get(`${Config.API_URL_BASE}/applications?applicationNumber=${query}`)
+      let response = await axios.get(`${Config.API_URL_BASE}/watchlists`)
       let error = _.get(response, 'data.error');
       if (error) {
         throw Err.CustomError(error);
       }
       let data = _.get(response, 'data');
 
-      return data;
+      this.watchLists = data;
+      
     } catch(err) {
       throw err;
     }
   }
 }
 
-export default new ApplicationStore();
+export default new WatchListStore();

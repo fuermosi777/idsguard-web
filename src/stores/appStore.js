@@ -17,12 +17,15 @@ class AppStore {
     let userToken = store.get(StoreKey.UserToken.name);
     if (userToken) {
       this.userToken = userToken;
+
+      axios.defaults.headers.common['Authorization'] = 'Bearer ' + userToken;
     }
   }
 
   @action logout() {
     this.userToken = null;
     store.remove(StoreKey.UserToken.name);
+    axios.defaults.headers.common['Authorization'] = '';
   }
 
   @action async login(email, password) {
@@ -36,6 +39,7 @@ class AppStore {
 
       this.userToken = data.token;
       store.set(StoreKey.UserToken.name, this.userToken);
+      axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.userToken;
 
       return data;
     } catch (err) {
