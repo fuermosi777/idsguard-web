@@ -26,6 +26,8 @@ class HomePage extends Component {
   constructor(props) {
     super(props);
 
+    this.handleSearchOp = _.debounce(this.handleSearch, 500);
+
     this.state = {
       errorMessage: ''
     };
@@ -33,7 +35,7 @@ class HomePage extends Component {
   componentDidMount() {
     trackingStore.getTrackings();
   }
-  handleClick = (e) => {
+  handleSignoutClick = (e) => {
     if (e.key === 'signout') {
       appStore.logout();
     }
@@ -41,13 +43,15 @@ class HomePage extends Component {
 
   handleSearch = async value => {
     this.setState({errorMessage: ''});
-    if (value.length >= 8) {
-      try {
-        await applicationSearchStore.searchApplications(value);
-      } catch (err) {
-        // handle error
-      }
+    try {
+      await applicationSearchStore.searchApplications(value);
+    } catch (err) {
+      // handle error
     }
+  }
+
+  handleSearchChange = value => {
+    applicationSearchStore.clearApplications();
   }
 
   handleSelectResult = async value => {
@@ -68,7 +72,7 @@ class HomePage extends Component {
 
   renderSearchList = (dataSource) => {
     return dataSource.map(data => (
-      <AutoComplete.Option key={data.applId}>
+      <AutoComplete.Option key={data.applId} value={data.applId}>
         <span className="appl-id">{data.applId} - </span>
         <span className="appl-pub-number">{data.appEarlyPubNumber} - </span>
         <span className="appl-title">{data.patentTitle}</span>
@@ -102,7 +106,8 @@ class HomePage extends Component {
                   size="large"
                   placeholder="Enter an application number"
                   onSelect={this.handleSelectResult}
-                  onSearch={this.handleSearch}
+                  onSearch={this.handleSearchOp}
+                  onChange={this.handleSearchChange}
                   defaultActiveFirstOption={false}
 
                 />
@@ -110,7 +115,7 @@ class HomePage extends Component {
               <Col>
                 <Menu
                   className="menu"
-                  onClick={this.handleClick}
+                  onClick={this.handleSignoutClick}
                   mode="horizontal"
                 >
                   <Menu.Item key="dashboard">
