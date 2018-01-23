@@ -4,19 +4,19 @@ import Config from '../config';
 import _ from 'lodash';
 import Err from '../utils/error';
 
-class ApplicationStore {
-  @observable application = [];
+class ApplicationSearchStore {
+  @observable applications = [];
 
-  async getApplication(applicationId) {
+  async searchApplications(query) {
     try {
-      let response = await axios.get(`${Config.API_URL_BASE}/applications?id=${applicationId}`)
+      let response = await axios.get(`${Config.API_URL_BASE}/applicationsearch?applicationNumber=${query}`)
       let error = _.get(response, 'data.error');
       if (error) {
         throw Err.CustomError(error);
       }
       let data = _.get(response, 'data');
-      if (data) {
-        this.application = data;
+      if (data && data.length > 0) {
+        this.applications = data;
       }
     } catch(err) {
       throw err;
@@ -24,4 +24,4 @@ class ApplicationStore {
   }
 }
 
-export default new ApplicationStore();
+export default new ApplicationSearchStore();

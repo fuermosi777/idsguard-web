@@ -20,4 +20,14 @@
 
 .HomePage .appl-list {
   background: white;
+  padding: 0 20px;
+  border-radius: 4px;
+  border: 1px solid #ebedf0;
+}
+
+.HomePage .appl-timeline {
+  background: white;
+  padding: 20px 20px 0;
+  border-radius: 4px;
+  border: 1px solid #ebedf0;
 }

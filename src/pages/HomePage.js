@@ -9,13 +9,17 @@ import {
   Alert,
   List,
   Button,
-  AutoComplete
+  AutoComplete,
+  Timeline
 } from 'antd';
 import './HomePage.css';
+import applicationSearchStore from '../stores/applicationSearchStore';
 import applicationStore from '../stores/applicationStore';
 import appStore from '../stores/appStore';
-import watchListStore from '../stores/watchListStore';
+import trackingStore from '../stores/trackingStore';
 import { observer } from 'mobx-react';
+import _ from 'lodash';
+import moment from 'moment';
 
 @observer
 class HomePage extends Component {
@@ -23,11 +27,11 @@ class HomePage extends Component {
     super(props);
 
     this.state = {
-      applicationData: []
+      errorMessage: ''
     };
   }
   componentDidMount() {
-    watchListStore.getWatchLists();
+    trackingStore.getTrackings();
   }
   handleClick = (e) => {
     if (e.key === 'signout') {
@@ -36,26 +40,30 @@ class HomePage extends Component {
   }
 
   handleSearch = async value => {
-    if (value.length < 8) {
-      this.setState({applicationData: []});
-    } else {
+    this.setState({errorMessage: ''});
+    if (value.length >= 8) {
       try {
-        let appls = await applicationStore.searchApplications(value);
-        if (!appls || appls.length === 0) {
-          // handle empty
-        } else {
-          this.setState({
-            applicationData: appls,
-          })
-        }
+        await applicationSearchStore.searchApplications(value);
       } catch (err) {
         // handle error
       }
     }
   }
 
-  handleSelectResult = value => {
-    console.log(value)
+  handleSelectResult = async value => {
+    try {
+      await trackingStore.createTracking(value);
+    } catch (err) {
+      this.setState({errorMessage: err.message});
+    }
+  }
+
+  handleApplicationClick = async applicationId => {
+    try {
+      await applicationStore.getApplication(applicationId);
+    } catch (err) {
+      // handle error
+    }
   }
 
   renderSearchList = (dataSource) => {
@@ -68,8 +76,20 @@ class HomePage extends Component {
     ))
   }
 
+  renderTimeline = (transactions) => {
+    if (!transactions) return null;
+
+    return transactions.map((transaction, key) => (
+      <Timeline.Item
+        key={key}
+        color={_.get(transaction, 'TransactionCode.color') || 'blue'}
+        dot={key === 0 ? <Icon type="clock-circle-o" style={{ fontSize: '16px' }} /> : null}
+      >{moment(transaction.recordDate).format('YYYY-MM-DD')} {transaction.TransactionCode.description}</Timeline.Item>
+    ));
+  }
+
   render() {
-    const { applicationData, errorMessage, errorType } = this.state;
+    const { errorMessage } = this.state;
     return (
       <div className="HomePage">
         <Layout className="main">
@@ -78,7 +98,7 @@ class HomePage extends Component {
               <Col span={16}>
                 <AutoComplete
                   className="search-application-input"
-                  dataSource={this.renderSearchList(applicationData)}
+                  dataSource={this.renderSearchList(applicationSearchStore.applications)}
                   size="large"
                   placeholder="Enter an application number"
                   onSelect={this.handleSelectResult}
@@ -105,9 +125,33 @@ class HomePage extends Component {
           </Layout.Header>
           <Layout>
             <Layout.Content className="content">
-              <Row>
-                <Col span={16}>
-                  <Button type="primary" icon="plus" size="large">Add a new list</Button>
+              <Row gutter={10}>
+                <Col span={12}>
+                  {errorMessage ? 
+                    <Alert message={errorMessage} type="error" showIcon />
+                  : null}
+                  <List
+                    className="appl-list"
+                    itemLayout="vertical"
+                    size="large"
+                    dataSource={trackingStore.trackings}
+                    renderItem={item => (
+                      <List.Item
+                        key={_.get(item, 'Application.applId')}
+                      >
+                        <List.Item.Meta
+                          title={_.get(item, 'Application.appEarlyPubNumber')}
+                          description={_.get(item, 'Application.patentTitle')}
+                        />
+                        <Button type="primary" icon="right" onClick={this.handleApplicationClick.bind(this, item.applicationId)}>Transaction History</Button>
+                      </List.Item>
+                    )}
+                  />
+                </Col>
+                <Col span={12}>
+                  <Timeline className="appl-timeline">
+                    {this.renderTimeline(_.get(applicationStore, 'application.Transactions'))}
+                  </Timeline>
                 </Col>
               </Row>
             </Layout.Content>
