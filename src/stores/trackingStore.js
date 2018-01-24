@@ -1,6 +1,5 @@
 import { observable, action } from "mobx";
-import axios from 'axios';
-import Config from '../config';
+import axios from '../utils/axios';
 import _ from 'lodash';
 import Err from '../utils/error';
 
@@ -9,7 +8,7 @@ class TrackingStore {
 
   @action async getTrackings(query) {
     try {
-      let response = await axios.get(`${Config.API_URL_BASE}/trackings`)
+      let response = await axios.get(`trackings`)
       let error = _.get(response, 'data.error');
       if (error) {
         throw Err.CustomError(error);
@@ -25,7 +24,7 @@ class TrackingStore {
 
   @action async createTracking(applicationId) {
     try {
-      let response = await axios.post(`${Config.API_URL_BASE}/trackings`, {
+      let response = await axios.post(`trackings`, {
         applicationId
       })
       let error = _.get(response, 'data.error');
@@ -41,7 +40,7 @@ class TrackingStore {
 
   @action async deleteTracking(trackingId) {
     try {
-      let response = await axios.delete(`${Config.API_URL_BASE}/trackings/${trackingId}`)
+      let response = await axios.delete(`trackings/${trackingId}`)
       let error = _.get(response, 'data.error');
       if (error) {
         throw Err.CustomError(error);

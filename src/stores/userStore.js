@@ -1,7 +1,7 @@
 import { observable, computed, action } from "mobx";
-import axios from 'axios';
+import axios from '../utils/axios';
 import store from 'store';
-import Config from '../config';
+
 import _ from 'lodash';
 import Err from '../utils/error';
 import StoreKey from '../enums/storeKey';
@@ -33,16 +33,15 @@ class UserStore {
 
   @action async login(email, password) {
     try {
-      let response = await axios.post(`${Config.API_URL_BASE}/login`, {email, password})
+      let response = await axios.post(`login`, {email, password})
       let error = _.get(response, 'data.error');
       if (error) {
         throw Err.CustomError(error);
       }
       let data = _.get(response, 'data');
-
+      axios.defaults.headers.common['Authorization'] = 'Bearer ' + data.token;
       this.userToken = data.token;
       store.set(StoreKey.UserToken.name, this.userToken);
-      axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.userToken;
 
       return data;
     } catch (err) {

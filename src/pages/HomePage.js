@@ -11,6 +11,7 @@ import {
   AutoComplete,
   Timeline
 } from 'antd';
+import TrackingTimelineTable from '../components/TrackingTimelineTable';
 import './HomePage.css';
 import applicationSearchStore from '../stores/applicationSearchStore';
 import applicationStore from '../stores/applicationStore';
@@ -64,6 +65,14 @@ class HomePage extends Component {
   handleApplicationClick = async applicationId => {
     try {
       await applicationStore.getApplication(applicationId);
+    } catch (err) {
+      // handle error
+    }
+  }
+
+  handleTrackingClick = async trackingId => {
+    try {
+      await trackingStore.deleteTracking(trackingId);
     } catch (err) {
       // handle error
     }
@@ -129,7 +138,11 @@ class HomePage extends Component {
           </Layout.Header>
           <Layout>
             <Layout.Content className="content">
-              <Row gutter={10}>
+              <TrackingTimelineTable
+                data={trackingStore.trackings}
+                onTrackingClick={this.handleTrackingClick}
+              />
+              {/* <Row gutter={10}>
                 <Col span={12}>
                   {errorMessage ? 
                     <Alert message={errorMessage} type="error" showIcon />
@@ -159,7 +172,7 @@ class HomePage extends Component {
                     </Timeline>
                   : null}
                 </Col>
-              </Row>
+              </Row> */}
             </Layout.Content>
           </Layout>
           <Layout.Footer>IDS Guard &copy; 2017 - present</Layout.Footer>
