@@ -64,9 +64,9 @@ class TrackingTimelineTable extends Component {
     }
   }
 
-  handleSidebarItemClick = trackingId => {
+  handleSidebarItemClick = tracking => {
     if (this.props.onTrackingClick) {
-      this.props.onTrackingClick(trackingId);
+      this.props.onTrackingClick(tracking);
     }
   }
 
@@ -79,7 +79,10 @@ class TrackingTimelineTable extends Component {
         <div className="fixed-sidebar">
           <div className="sidebar-item-head">Applications</div>
           {data.map(tracking => (
-            <div className="sidebar-item" key={tracking.id} onClick={this.handleSidebarItemClick.bind(this, tracking.id)}>{tracking.Application.applId}</div>
+            <div className="sidebar-item" key={tracking.id} onClick={this.handleSidebarItemClick.bind(this, tracking)}>
+              {tracking.Application.applId} - 
+              - {tracking.Application.Transactions.length} Events
+            </div>
           ))}
         </div>
         <div className="timeline" ref={el => this.timeline = el}>

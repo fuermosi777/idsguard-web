@@ -26,6 +26,10 @@
   cursor: pointer;
 }
 
+.TrackingTimelineTable .sidebar-item:hover {
+  background-color: #fafafa;
+}
+
 .TrackingTimelineTable .sidebar-item-head {
   background-color: #fafafa;
   text-align: center;
@@ -62,7 +66,7 @@
 }
 
 .TrackingTimelineTable .timeline-item-block-head {
-  background-color: #fafafa;
+  /* background-color: #fafafa; */
   text-align: center;
   color: #AEBCC5;
 }

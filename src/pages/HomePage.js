@@ -9,12 +9,15 @@ import {
   List,
   Button,
   AutoComplete,
-  Timeline
+  Timeline,
+  Modal,
+  Popconfirm,
+  message,
+  Collapse
 } from 'antd';
 import TrackingTimelineTable from '../components/TrackingTimelineTable';
 import './HomePage.css';
 import applicationSearchStore from '../stores/applicationSearchStore';
-import applicationStore from '../stores/applicationStore';
 import userStore from '../stores/userStore';
 import trackingStore from '../stores/trackingStore';
 import { observer } from 'mobx-react';
@@ -29,12 +32,18 @@ class HomePage extends Component {
     this.handleSearchOp = _.debounce(this.handleSearch, 500);
 
     this.state = {
-      errorMessage: ''
+      errorMessage: '',
+      isModalOpen: false
     };
   }
   componentDidMount() {
     trackingStore.getTrackings();
   }
+
+  handleCloseModal = () => {
+    this.setState({isModalOpen: false});
+  }
+
   handleSignoutClick = (e) => {
     if (e.key === 'signout') {
       userStore.logout();
@@ -62,17 +71,16 @@ class HomePage extends Component {
     }
   }
 
-  handleApplicationClick = async applicationId => {
-    try {
-      await applicationStore.getApplication(applicationId);
-    } catch (err) {
-      // handle error
-    }
+  handleTrackingClick = tracking => {
+    trackingStore.selectTracking(tracking);
+    this.setState({isModalOpen: true});
   }
 
-  handleTrackingClick = async trackingId => {
+  handleDeleteTracking = async trackingId => {
     try {
       await trackingStore.deleteTracking(trackingId);
+      message.success('Successfully untracked.')
+      this.setState({isModalOpen: false});
     } catch (err) {
       // handle error
     }
@@ -142,41 +150,51 @@ class HomePage extends Component {
                 data={trackingStore.trackings}
                 onTrackingClick={this.handleTrackingClick}
               />
-              {/* <Row gutter={10}>
-                <Col span={12}>
-                  {errorMessage ? 
-                    <Alert message={errorMessage} type="error" showIcon />
-                  : null}
-                  <List
-                    className="appl-list"
-                    itemLayout="vertical"
-                    size="large"
-                    dataSource={trackingStore.trackings}
-                    renderItem={item => (
-                      <List.Item
-                        key={_.get(item, 'Application.applId')}
-                      >
-                        <List.Item.Meta
-                          title={_.get(item, 'Application.appEarlyPubNumber')}
-                          description={_.get(item, 'Application.patentTitle')}
-                        />
-                        <Button type="primary" icon="right" onClick={this.handleApplicationClick.bind(this, item.applicationId)}>Transaction History</Button>
-                      </List.Item>
-                    )}
-                  />
-                </Col>
-                <Col span={12}>
-                  {_.get(applicationStore, 'application') ?
-                    <Timeline className="appl-timeline">
-                      {this.renderTimeline(_.get(applicationStore, 'application.Transactions'))}
-                    </Timeline>
-                  : null}
-                </Col>
-              </Row> */}
             </Layout.Content>
           </Layout>
           <Layout.Footer>IDS Guard &copy; 2017 - present</Layout.Footer>
         </Layout>
+        <Modal
+          title="Application Information"
+          visible={this.state.isModalOpen}
+          onOk={this.handleCloseModal}
+          closable={false}
+          destroyOnClose
+          footer={[
+            <Popconfirm key="untrack" title="Are you sure remove this application from your watch list?" onConfirm={this.handleDeleteTracking.bind(this, _.get(trackingStore, 'tracking.id'))} okText="Yes" cancelText="No">
+              <Button type="danger">Untrack</Button>
+            </Popconfirm>,
+            <Button key="close" type="primary" onClick={this.handleCloseModal}>
+              Close
+            </Button>,
+          ]}
+        >
+          <Collapse accordion defaultActiveKey={['basic']}>
+            <Collapse.Panel header="Appliation Data" key="basic">
+              {_.get(trackingStore, 'tracking') ?
+                <List
+                  itemLayout="horizontal"
+                  dataSource={trackingStore.trackingData}
+                  renderItem={item => (
+                    <List.Item>
+                      <List.Item.Meta
+                        title={item.title}
+                        description={item.description}
+                      />
+                    </List.Item>
+                  )}
+                />
+              : null}
+            </Collapse.Panel>
+            <Collapse.Panel header="Transaction History" key="timeline">
+              {_.get(trackingStore, 'tracking') ?
+                <Timeline className="appl-timeline">
+                  {this.renderTimeline(_.get(trackingStore, 'tracking.Application.Transactions'))}
+                </Timeline>
+              : null}
+            </Collapse.Panel>
+          </Collapse>
+        </Modal>
       </div>
     );
   }
