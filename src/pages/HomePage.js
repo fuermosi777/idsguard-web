@@ -13,13 +13,15 @@ import {
   Modal,
   Popconfirm,
   message,
-  Collapse
+  Collapse,
+  Badge
 } from 'antd';
 import TrackingTimelineTable from '../components/TrackingTimelineTable';
 import './HomePage.css';
 import applicationSearchStore from '../stores/applicationSearchStore';
 import userStore from '../stores/userStore';
 import trackingStore from '../stores/trackingStore';
+import notificationStore from '../stores/notificationStore';
 import { observer } from 'mobx-react';
 import _ from 'lodash';
 import moment from 'moment';
@@ -38,6 +40,7 @@ class HomePage extends Component {
   }
   componentDidMount() {
     trackingStore.getTrackings();
+    notificationStore.getNotifications();
   }
 
   handleCloseModal = () => {
@@ -150,10 +153,30 @@ class HomePage extends Component {
                 data={trackingStore.trackings}
                 onTrackingClick={this.handleTrackingClick}
               />
+
+              <div style={{height: '40px'}}></div>
+
+              <h3>New Events <Badge count={notificationStore.notifications.length}/></h3>
+
+              <List
+                bordered
+                dataSource={notificationStore.notifications}
+                renderItem={item => (
+                  <List.Item key={item.id} className="notification-list-item">
+                    <List.Item.Meta
+                      title={moment(item.Transaction.recordDate).format('YYYY-MM-DD') + ' ' + item.Transaction.Application.applId}
+                      description={item.Transaction.TransactionCode.description}
+                    />
+                  </List.Item>
+                )}
+              />
+
             </Layout.Content>
           </Layout>
           <Layout.Footer>IDS Guard &copy; 2017 - present</Layout.Footer>
         </Layout>
+
+
         <Modal
           title="Application Information"
           visible={this.state.isModalOpen}
